@@ -3,6 +3,7 @@ import { Post } from './db/models/post.js'
 await initDatabase()
 const post = new Post({
   title: 'Hello Mongoose!',
+  author: 'Kevin Jagdeo',
   contents: 'This post is stored in a MongoDB database using Mongoose.',
   image:
     'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',

@@ -2,7 +2,7 @@ import mongoose, { Schema } from 'mongoose'
 const postSchema = new Schema(
   {
     title: { type: String, required: true },
-    //author: String,
+    author: String,
     contents: String,
     //add schema for image URL
     image: { type: String, required: true },
