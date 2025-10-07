@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { PropTypes } from 'prop-types'
 
 export function Post({ title, content, author, imageUrl }) {
-  const [showImage, setShowImage] = useState(true)
+  const [showImage, setShowImage] = useState(false)
 
   return (
     <article className='recipe-post'>

@@ -3,9 +3,9 @@ const postSchema = new Schema(
   {
     title: { type: String, required: true },
     author: String,
-    contents: String,
+    content: String,
     //add schema for image URL
-    image: { type: String, required: true },
+    imageUrl: { type: String, required: true },
     tags: [String],
   },
   { timestamps: true },
