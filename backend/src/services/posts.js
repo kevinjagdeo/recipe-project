@@ -1,6 +1,6 @@
 import { Post } from '../db/models/post.js'
-export async function createPost({ title, author, contents, image, tags }) {
-  const post = new Post({ title, author, contents, image, tags })
+export async function createPost({ title, author, content, imageUrl, tags }) {
+  const post = new Post({ title, author, content, imageUrl, tags })
   return await post.save()
 }
 
@@ -24,11 +24,11 @@ export async function getPostById(postId) {
 }
 export async function updatePost(
   postId,
-  { title, author, contents, image, tags },
+  { title, author, content, imageUrl, tags },
 ) {
   return await Post.findOneAndUpdate(
     { _id: postId },
-    { $set: { title, author, contents, image, tags } },
+    { $set: { title, author, content, imageUrl, tags } },
     { new: true },
   )
 }

@@ -26,7 +26,7 @@ export function Post({ title, content, author, imageUrl }) {
       {author && (
         <em>
           <br />
-          Submitted by <strong>{author}</strong>
+          Created by <strong>{author}</strong>
         </em>
       )}
     </article>

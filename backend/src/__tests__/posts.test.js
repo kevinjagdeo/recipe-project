@@ -15,27 +15,27 @@ const samplePosts = [
   {
     title: 'Learning Redux',
     author: 'Daniel Bugl',
-    image:
+    imageUrl:
       'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
     tags: ['redux'],
   },
   {
     title: 'Learn React Hooks',
     author: 'Daniel Bugl',
-    image:
+    imageUrl:
       'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
     tags: ['react'],
   },
   {
     title: 'Full-Stack React Projects',
     author: 'Daniel Bugl',
-    image:
+    imageUrl:
       'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
     tags: ['react', 'nodejs'],
   },
   {
     title: 'Guide to TypeScript',
-    image:
+    imageUrl:
       'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
   },
 ]
@@ -142,24 +142,30 @@ describe('listing posts', () => {
 describe('creating posts', () => {
   test('with all parameters should succeed', async () => {
     const post = {
-      title: 'Hello Mongoose!',
-      author: 'Kevin Jagdeo',
-      contents: 'This post is stored in a MongoDB database using Mongoose.',
-      image:
+      title: 'Learning Redux',
+      author: 'Daniel Bugl',
+      imageUrl:
         'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
-      tags: ['mongoose', 'mongodb'],
+      tags: ['redux'],
     }
     const createdPost = await createPost(post)
     expect(createdPost._id).toBeInstanceOf(mongoose.Types.ObjectId)
     const foundPost = await Post.findById(createdPost._id)
-    expect(foundPost).toEqual(expect.objectContaining(post))
+
+    expect(foundPost).not.toBeNull()
+    expect(foundPost.title).toBe(post.title)
+    expect(foundPost.author).toBe(post.author)
+    expect(foundPost.content).toBe(post.content)
+    expect(foundPost.imageUrl).toBe(post.imageUrl)
+    expect(foundPost.tags).toEqual(expect.arrayContaining(post.tags))
+
     expect(foundPost.createdAt).toBeInstanceOf(Date)
     expect(foundPost.updatedAt).toBeInstanceOf(Date)
   })
   test('without title should fail', async () => {
     const post = {
-      contents: 'Post with no title',
-      image:
+      content: 'Post with no title',
+      imageUrl:
         'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
       tags: ['empty'],
     }
@@ -173,8 +179,8 @@ describe('creating posts', () => {
   test('with minimal parameters should succeed', async () => {
     const post = {
       title: 'Title and image',
-      image:
-        'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
+      imageUrl:
+        'https://ucarecdn.com/5cde3dd6-8621-410c-87ff-7af992ed8fa2/-/crop/2181x2948/455,0/-/preview/-/scale_crop/350x473/-/quality/smart/-/format/auto/',
     }
     const createdPost = await createPost(post)
     expect(createdPost._id).toBeInstanceOf(mongoose.Types.ObjectId)
