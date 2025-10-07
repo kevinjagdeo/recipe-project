@@ -1,15 +1,32 @@
+import { useState } from 'react'
 import { PropTypes } from 'prop-types'
 
 export function Post({ title, content, author, imageUrl }) {
+  const [showImage, setShowImage] = useState(true)
+
   return (
     <article className='recipe-post'>
-      {imageUrl && <img src={imageUrl} alt={title} className='recipe-image' />}
+      {imageUrl && (
+        <div>
+          {' '}
+          <br />
+          <button
+            onClick={() => setShowImage((prev) => !prev)}
+            style={{ marginBottom: '8px' }}
+          >
+            {showImage ? 'Hide Image' : 'Show Image'}
+          </button>
+          {showImage && (
+            <img src={imageUrl} alt={title} className='recipe-image' />
+          )}
+        </div>
+      )}
       <h3>{title}</h3>
       <div>{content}</div>
       {author && (
         <em>
           <br />
-          Written by <strong>{author}</strong>
+          Submitted by <strong>{author}</strong>
         </em>
       )}
     </article>
