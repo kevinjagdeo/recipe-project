@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { PropTypes } from 'prop-types'
+import { User } from './User.jsx'
 
 export function Post({ title, content, author, imageUrl }) {
   const [showImage, setShowImage] = useState(false)
@@ -26,7 +27,7 @@ export function Post({ title, content, author, imageUrl }) {
       {author && (
         <em>
           <br />
-          Created by <strong>{author}</strong>
+          Created by <User id={author} />
         </em>
       )}
     </article>

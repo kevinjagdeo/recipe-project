@@ -1,5 +1,5 @@
 import mongoose from 'mongoose'
-import { describe, expect, test, beforeEach } from '@jest/globals'
+import { describe, expect, test, beforeEach, beforeAll } from '@jest/globals'
 import {
   createPost,
   listAllPosts,
@@ -10,35 +10,38 @@ import {
   deletePost,
 } from '../services/posts.js'
 import { Post } from '../db/models/post.js'
+import { createUser } from '../services/users.js'
 
-const samplePosts = [
-  {
-    title: 'Learning Redux',
-    author: 'Daniel Bugl',
-    imageUrl:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
-    tags: ['redux'],
-  },
-  {
-    title: 'Learn React Hooks',
-    author: 'Daniel Bugl',
-    imageUrl:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
-    tags: ['react'],
-  },
-  {
-    title: 'Full-Stack React Projects',
-    author: 'Daniel Bugl',
-    imageUrl:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
-    tags: ['react', 'nodejs'],
-  },
-  {
-    title: 'Guide to TypeScript',
-    imageUrl:
-      'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
-  },
-]
+let testUser = null
+let samplePosts = []
+
+beforeAll(async () => {
+  testUser = await createUser({ username: 'sample', password: 'user' })
+  samplePosts = [
+    {
+      title: 'Learning Redux',
+      author: testUser._id,
+      imageUrl:
+        'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
+      tags: ['redux'],
+    },
+    {
+      title: 'Learn React Hooks',
+      author: testUser._id,
+      imageUrl:
+        'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
+      tags: ['react'],
+    },
+    {
+      title: 'Full-Stack React Projects',
+      author: testUser._id,
+      imageUrl:
+        'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
+      tags: ['react', 'nodejs'],
+    },
+  ]
+})
+
 let createdSamplePosts = []
 beforeEach(async () => {
   await Post.deleteMany({})
@@ -61,22 +64,22 @@ describe('getting a post', () => {
 })
 describe('updating posts', () => {
   test('should update the specified property', async () => {
-    await updatePost(createdSamplePosts[0]._id, {
-      author: 'Test Author',
+    await updatePost(testUser._id, createdSamplePosts[0]._id, {
+      content: 'some content',
     })
     const updatedPost = await Post.findById(createdSamplePosts[0]._id)
-    expect(updatedPost.author).toEqual('Test Author')
+    expect(updatedPost.content).toEqual('some content')
   })
   test('should not update other properties', async () => {
-    await updatePost(createdSamplePosts[0]._id, {
-      author: 'Test Author',
+    await updatePost(testUser._id, createdSamplePosts[0]._id, {
+      content: 'new content',
     })
     const updatedPost = await Post.findById(createdSamplePosts[0]._id)
-    expect(updatedPost.title).toEqual('Learning Redux')
+    expect(updatedPost.content).toEqual('new content')
   })
   test('should update the updatedAt timestamp', async () => {
-    await updatePost(createdSamplePosts[0]._id, {
-      author: 'Test Author',
+    await updatePost(testUser._id, createdSamplePosts[0]._id, {
+      content: 'new content',
     })
     const updatedPost = await Post.findById(createdSamplePosts[0]._id)
     expect(updatedPost.updatedAt.getTime()).toBeGreaterThan(
@@ -84,15 +87,15 @@ describe('updating posts', () => {
     )
   })
   test('should fail if the id does not exist', async () => {
-    const post = await updatePost('000000000000000000000000', {
-      author: 'Test Author',
+    const post = await updatePost(testUser._id, '000000000000000000000000', {
+      content: 'Test Author',
     })
     expect(post).toEqual(null)
   })
 })
 describe('deleting posts', () => {
   test('should remove the post from the database', async () => {
-    const result = await deletePost(createdSamplePosts[0]._id)
+    const result = await deletePost(testUser._id, createdSamplePosts[0]._id)
     expect(result.deletedCount).toEqual(1)
     const deletedPost = await Post.findById(createdSamplePosts[0]._id)
     expect(deletedPost).toEqual(null)
@@ -130,7 +133,7 @@ describe('listing posts', () => {
     )
   })
   test('should be able to filter posts by author', async () => {
-    const posts = await listPostsByAuthor('Daniel Bugl')
+    const posts = await listPostsByAuthor(testUser.username)
     expect(posts.length).toBe(3)
   })
   test('should be able to filter posts by tag', async () => {
@@ -143,18 +146,18 @@ describe('creating posts', () => {
   test('with all parameters should succeed', async () => {
     const post = {
       title: 'Learning Redux',
-      author: 'Daniel Bugl',
+
       imageUrl:
         'https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636',
       tags: ['redux'],
     }
-    const createdPost = await createPost(post)
+    const createdPost = await createPost(testUser._id, post)
     expect(createdPost._id).toBeInstanceOf(mongoose.Types.ObjectId)
     const foundPost = await Post.findById(createdPost._id)
 
     expect(foundPost).not.toBeNull()
     expect(foundPost.title).toBe(post.title)
-    expect(foundPost.author).toBe(post.author)
+
     expect(foundPost.content).toBe(post.content)
     expect(foundPost.imageUrl).toBe(post.imageUrl)
     expect(foundPost.tags).toEqual(expect.arrayContaining(post.tags))
@@ -170,7 +173,7 @@ describe('creating posts', () => {
       tags: ['empty'],
     }
     try {
-      await createPost(post)
+      await createPost(testUser._id, post)
     } catch (err) {
       expect(err).toBeInstanceOf(mongoose.Error.ValidationError)
       expect(err.message).toContain('`title` is required')
@@ -182,7 +185,7 @@ describe('creating posts', () => {
       imageUrl:
         'https://ucarecdn.com/5cde3dd6-8621-410c-87ff-7af992ed8fa2/-/crop/2181x2948/455,0/-/preview/-/scale_crop/350x473/-/quality/smart/-/format/auto/',
     }
-    const createdPost = await createPost(post)
+    const createdPost = await createPost(testUser._id, post)
     expect(createdPost._id).toBeInstanceOf(mongoose.Types.ObjectId)
   })
 })
