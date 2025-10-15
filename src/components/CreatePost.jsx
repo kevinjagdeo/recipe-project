@@ -36,7 +36,7 @@ export function CreatePost() {
       <br />
 
       <div>
-        <label htmlFor='create-content'>Content: </label>
+        <label htmlFor='create-content'>Ingredients: </label>
         <textarea
           id='create-content'
           value={content}
