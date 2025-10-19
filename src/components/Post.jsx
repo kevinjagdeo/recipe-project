@@ -1,12 +1,27 @@
 import { useState } from 'react'
 import { PropTypes } from 'prop-types'
 import { User } from './User.jsx'
+import { Link } from 'react-router-dom'
 
-export function Post({ title, content, author, imageUrl }) {
+export function Post({
+  title,
+  content,
+  author,
+  _id,
+  fullPost = false,
+  imageUrl,
+}) {
   const [showImage, setShowImage] = useState(false)
 
   return (
     <article className='recipe-post'>
+      {fullPost ? (
+        <h3>{title}</h3>
+      ) : (
+        <Link to={`/posts/${_id}`}>
+          <h3>{title}</h3>
+        </Link>
+      )}
       {imageUrl && (
         <div>
           {' '}
@@ -22,12 +37,11 @@ export function Post({ title, content, author, imageUrl }) {
           )}
         </div>
       )}
-      <h3>{title}</h3>
-      <div>{content}</div>
+      {fullPost && <div>{content}</div>}
       {author && (
         <em>
-          <br />
-          Created by <User id={author} />
+          {fullPost && <br />}
+          Written by <User id={author} />
         </em>
       )}
     </article>
@@ -39,4 +53,6 @@ Post.propTypes = {
   content: PropTypes.string,
   author: PropTypes.string,
   imageUrl: PropTypes.string,
+  _id: PropTypes.string.isRequired,
+  fullPost: PropTypes.bool,
 }
