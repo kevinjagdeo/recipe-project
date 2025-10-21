@@ -3,6 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import { fileURLToPath } from 'url'
 import { render } from './dist/server/entry-server.js'
+import { generateSitemap } from './generateSitemap.js' // Import your sitemap generator
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -20,18 +21,30 @@ app.use(
   express.static(path.resolve(__dirname, 'dist/client/assets')),
 )
 
+// Middleware for sitemap.xml using your generateSitemap function
+app.use('*', async (req, res, next) => {
+  if (req.originalUrl === '/sitemap.xml') {
+    try {
+      const sitemap = await generateSitemap()
+      return res
+        .status(200)
+        .set({ 'Content-Type': 'application/xml' })
+        .end(sitemap)
+    } catch (err) {
+      next(err)
+    }
+  }
+  next()
+})
+
 app.get('*', async (req, res, next) => {
   try {
-    // Extract appHtml, dehydrated cache, and helmetContext from your SSR render
     const { appHtml, dehydratedState, helmetContext } = await render(req.url)
-
     const helmet = helmetContext.helmet
 
     const html = template
       .replace('<!--app-html-->', appHtml)
-      // Replace title tag with Helmet title
       .replace('<title>My App</title>', helmet.title.toString())
-      // Inject Helmet meta, link, script tags for SEO
       .replace(
         '<!--helmet-meta-->',
         `
@@ -40,7 +53,6 @@ app.get('*', async (req, res, next) => {
           ${helmet.script.toString()}
         `,
       )
-      // Inject React Query dehydrated state for client
       .replace(
         '<!--ssr-state-->',
         `<script>window.__REACT_QUERY_STATE__ = ${JSON.stringify(dehydratedState)}</script>`,
