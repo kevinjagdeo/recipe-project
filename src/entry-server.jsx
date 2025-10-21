@@ -1,20 +1,29 @@
-import ReactDOMServer from 'react-dom/server'
-import { App } from './App.jsx'
+import { renderToString } from 'react-dom/server'
+import { RouterProvider, createMemoryRouter } from 'react-router-dom/server'
 import {
-  createStaticHandler,
-  createStaticRouter,
-  StaticRouterProvider,
-} from 'react-router-dom/server'
+  QueryClient,
+  QueryClientProvider,
+  dehydrate,
+} from '@tanstack/react-query'
+import { App } from './App.jsx'
 import { routes } from './routes.jsx'
-import { createFetchRequest } from './request.js'
-const handler = createStaticHandler(routes)
-export async function render(req) {
-  const fetchRequest = createFetchRequest(req)
-  const context = await handler.query(fetchRequest)
-  const router = createStaticRouter(handler.dataRoutes, context)
-  return ReactDOMServer.renderToString(
-    <App>
-      <StaticRouterProvider router={router} context={context} />
-    </App>,
+
+export async function render(url) {
+  const queryClient = new QueryClient()
+
+  const router = createMemoryRouter(routes, {
+    initialEntries: [url],
+  })
+
+  const appHtml = renderToString(
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router}>
+        <App />
+      </RouterProvider>
+    </QueryClientProvider>,
   )
+
+  const dehydratedState = dehydrate(queryClient)
+
+  return { appHtml, dehydratedState }
 }

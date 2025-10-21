@@ -1,31 +1,15 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Blog } from './pages/Blog.jsx'
-import { Signup } from './pages/Signup.jsx'
-import { Login } from './pages/Login.jsx'
-import { AuthContextProvider } from './contexts/AuthContext.jsx'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
-const queryClient = new QueryClient()
-const router = createBrowserRouter([
-  {
-    path: '/',
-    element: <Blog />,
-  },
-  {
-    path: '/signup',
-    element: <Signup />,
-  },
-  {
-    path: '/login',
-    element: <Login />,
-  },
-])
+import { AuthContextProvider } from './contexts/AuthContext.jsx'
+
+// Only export the UI or routes without any Router component here
 
 export function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={new QueryClient()}>
       <AuthContextProvider>
-        <RouterProvider router={router} />
+        {/* Render children or routes here directly */}
+        <div>Routes go here or render logic in entry points</div>
       </AuthContextProvider>
     </QueryClientProvider>
   )

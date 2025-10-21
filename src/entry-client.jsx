@@ -1,15 +1,26 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
+import { hydrateRoot } from 'react-dom/client'
+import { RouterProvider } from 'react-router-dom'
+import {
+  QueryClient,
+  QueryClientProvider,
+  HydrationBoundary,
+} from '@tanstack/react-query'
 import { App } from './App.jsx'
-import './index.css'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router-dom'
 import { routes } from './routes.jsx'
+
 const router = createBrowserRouter(routes)
-ReactDOM.hydrateRoot(
+
+const queryClient = new QueryClient()
+const dehydratedState = window.__REACT_QUERY_STATE__
+
+hydrateRoot(
   document.getElementById('root'),
-  <React.StrictMode>
-    <App>
-      <RouterProvider router={router} />
-    </App>
-  </React.StrictMode>,
+  <QueryClientProvider client={queryClient}>
+    <HydrationBoundary state={dehydratedState}>
+      <RouterProvider router={router}>
+        <App />
+      </RouterProvider>
+    </HydrationBoundary>
+  </QueryClientProvider>,
 )

@@ -8,13 +8,13 @@ export function Post({
   content,
   author,
   _id,
-  fullPost = false,
   imageUrl,
+  fullPost = false,
 }) {
   const [showImage, setShowImage] = useState(false)
 
   return (
-    <article className='recipe-post'>
+    <article>
       {fullPost ? (
         <h3>{title}</h3>
       ) : (
@@ -41,7 +41,7 @@ export function Post({
       {author && (
         <em>
           {fullPost && <br />}
-          Written by <User id={author} />
+          Submitted by <User id={author} />
         </em>
       )}
     </article>
@@ -52,7 +52,7 @@ Post.propTypes = {
   title: PropTypes.string.isRequired,
   content: PropTypes.string,
   author: PropTypes.string,
-  imageUrl: PropTypes.string,
   _id: PropTypes.string.isRequired,
+  imageUrl: PropTypes.string,
   fullPost: PropTypes.bool,
 }
