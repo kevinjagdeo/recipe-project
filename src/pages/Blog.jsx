@@ -23,6 +23,10 @@ export function Blog() {
     <div style={{ padding: 8 }}>
       <Helmet>
         <title>Full-Stack React Recipes</title>
+        <meta
+          name='description'
+          content='A blog full of recipes about full-stack React development.'
+        />
       </Helmet>
       <Header />
       <br />
