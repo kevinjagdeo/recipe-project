@@ -1,16 +1,20 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-
 import { AuthContextProvider } from './contexts/AuthContext.jsx'
+import { HelmetProvider } from 'react-helmet-async'
+import PropTypes from 'prop-types'
 
-// Only export the UI or routes without any Router component here
+const queryClient = new QueryClient()
 
-export function App() {
+export function App({ children }) {
   return (
-    <QueryClientProvider client={new QueryClient()}>
-      <AuthContextProvider>
-        {/* Render children or routes here directly */}
-        <div>Routes go here or render logic in entry points</div>
-      </AuthContextProvider>
-    </QueryClientProvider>
+    <HelmetProvider>
+      <QueryClientProvider client={queryClient}>
+        <AuthContextProvider>{children}</AuthContextProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   )
+}
+
+App.propTypes = {
+  children: PropTypes.element.isRequired,
 }

@@ -18,9 +18,9 @@ hydrateRoot(
   document.getElementById('root'),
   <QueryClientProvider client={queryClient}>
     <HydrationBoundary state={dehydratedState}>
-      <RouterProvider router={router}>
-        <App />
-      </RouterProvider>
+      <App>
+        <RouterProvider router={router} />
+      </App>
     </HydrationBoundary>
   </QueryClientProvider>,
 )
