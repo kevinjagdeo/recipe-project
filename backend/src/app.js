@@ -3,6 +3,7 @@ import { postsRoutes } from './routes/posts.js'
 import { userRoutes } from './routes/users.js'
 import bodyParser from 'body-parser'
 import cors from 'cors'
+import { optionalAuth } from './middleware/jwt.js'
 import { eventRoutes } from './routes/events.js'
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
@@ -16,9 +17,17 @@ const app = express()
 
 app.use(cors())
 app.use(bodyParser.json())
-apolloServer
-  .start()
-  .then(() => app.use('/graphql', expressMiddleware(apolloServer)))
+apolloServer.start().then(() =>
+  app.use(
+    '/graphql',
+    optionalAuth,
+    expressMiddleware(apolloServer, {
+      context: async ({ req }) => {
+        return { auth: req.auth }
+      },
+    }),
+  ),
+)
 
 postsRoutes(app)
 userRoutes(app)
