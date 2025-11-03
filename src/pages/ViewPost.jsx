@@ -72,7 +72,7 @@ export function ViewPost({ postId }) {
       <hr />
       {post ? (
         <div>
-          <Post {...post} fullPost id={postId} />
+          <Post {...post} fullPost id={postId} author={userInfo} />
           <hr /> <PostStats postId={postId} />
         </div>
       ) : (

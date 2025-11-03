@@ -42,7 +42,7 @@ export function Post({
       {author && (
         <em>
           {fullPost && <br />}
-          Submitted by <User id={author} />
+          Submitted by <User {...author} />
         </em>
       )}
     </article>
@@ -52,7 +52,7 @@ export function Post({
 Post.propTypes = {
   title: PropTypes.string.isRequired,
   content: PropTypes.string,
-  author: PropTypes.string,
+  author: PropTypes.shape(User.propTypes),
   id: PropTypes.string.isRequired,
   imageUrl: PropTypes.string,
   fullPost: PropTypes.bool,
