@@ -1,13 +1,11 @@
 import { useState } from 'react'
-//import { useMutation } from '@tanstack/react-query'
 import { useNavigate, Link } from 'react-router-dom'
-//import { login } from '../api/users.js'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { useMutation as useGraphQLMutation } from '@apollo/client/react/index.js'
 import { LOGIN_USER } from '../api/graphql/users.js'
 
 export function Login() {
-  const [, setToken] = useAuth()
+  const { setToken } = useAuth() // <-- fixed here
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
@@ -21,19 +19,11 @@ export function Login() {
     onError: () => alert('failed to login!'),
   })
 
-  /*const loginMutation = useMutation({
-    mutationFn: () => login({ username, password }),
-    onSuccess: (data) => {
-      setToken(data.token)
-      navigate('/')
-    },
-    onError: () => alert('failed to login!'),
-  })*/
   const handleSubmit = (e) => {
     e.preventDefault()
     loginUser()
-    //loginMutation.mutate()
   }
+
   return (
     <form onSubmit={handleSubmit}>
       <Link to='/'>Back to main page</Link>

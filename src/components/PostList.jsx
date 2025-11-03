@@ -7,6 +7,7 @@ export function PostList({ posts = [], currentUserId }) {
     <div>
       {posts.map((post) => (
         <Fragment key={post.id}>
+          {/* currentUserId is explicitly passed here, so it's "used" */}
           <Post {...post} currentUserId={currentUserId} />
           <hr />
         </Fragment>
@@ -15,7 +16,11 @@ export function PostList({ posts = [], currentUserId }) {
   )
 }
 
+// Exclude `currentUserId` from Post propTypes when defining posts shape
+const { currentUserId, ...postShapeWithoutCurrentUserId } = Post.propTypes || {}
+
 PostList.propTypes = {
-  posts: PropTypes.arrayOf(PropTypes.shape(Post.propTypes)).isRequired,
+  posts: PropTypes.arrayOf(PropTypes.shape(postShapeWithoutCurrentUserId))
+    .isRequired,
   currentUserId: PropTypes.string.isRequired,
 }

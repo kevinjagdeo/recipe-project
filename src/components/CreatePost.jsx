@@ -1,7 +1,5 @@
-//import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { useState } from 'react'
-//import { createPost } from '../api/posts.js'
 import { useMutation as useGraphQLMutation } from '@apollo/client/react/index.js'
 import {
   CREATE_POST,
@@ -13,28 +11,21 @@ import slug from 'slug'
 
 export function CreatePost() {
   const [title, setTitle] = useState('')
-
   const [content, setContent] = useState('')
   const [imageUrl, setImageUrl] = useState('')
-  const [token] = useAuth()
+  const { token } = useAuth() // <-- destructure as object
 
   const [createPost, { loading, data }] = useGraphQLMutation(CREATE_POST, {
-    variables: { title, content },
+    variables: { title, content, imageUrl }, // include imageUrl here if backend supports
     context: { headers: { Authorization: `Bearer ${token}` } },
     refetchQueries: [GET_POSTS, GET_POSTS_BY_AUTHOR],
   })
 
-  /*const queryClient = useQueryClient()
-  const createPostMutation = useMutation({
-    mutationFn: () => createPost(token, { title, content: content, imageUrl }),
-    onSuccess: () => queryClient.invalidateQueries(['posts']),
-  })*/
-
   const handleSubmit = (e) => {
     e.preventDefault()
     createPost()
-    //createPostMutation.mutate()
   }
+
   if (!token) return <div>Please log in to create new posts.</div>
 
   return (
@@ -50,7 +41,6 @@ export function CreatePost() {
         />
       </div>
       <br />
-
       <div>
         <label htmlFor='create-content'>Ingredients: </label>
         <textarea
