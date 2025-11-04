@@ -8,6 +8,7 @@ content: String
 tags: [String!]
 createdAt: Float
 updatedAt: Float
+likes: Int!
 }
 `
 export const postResolver = {
