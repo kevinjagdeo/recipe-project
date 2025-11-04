@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import { getUserInfo } from '../api/users.js'
 
 export function Header() {
-  const { token, setToken } = useAuth() // <-- fixed here
+  const [token, setToken] = useAuth()
   const { sub } = token ? jwtDecode(token) : {}
   const userInfoQuery = useQuery({
     queryKey: ['users', sub],
@@ -16,6 +16,7 @@ export function Header() {
   const userInfo = userInfoQuery.data
 
   if (token && userInfo) {
+    //const { sub } = jwtDecode(token)
     return (
       <div>
         <h1>Welcome to my Recipes Website!</h1>

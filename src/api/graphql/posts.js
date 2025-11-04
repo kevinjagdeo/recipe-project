@@ -11,11 +11,6 @@ export const POST_FIELDS = gql`
     author {
       username
     }
-    likesCount # Add the total likes count
-    likes {
-      id
-      username # Add users who liked (optional, for showing avatars/names)
-    }
   }
 `
 
@@ -36,25 +31,11 @@ export const GET_POSTS_BY_AUTHOR = gql`
     }
   }
 `
-
 export const CREATE_POST = gql`
   mutation createPost($title: String!, $contents: String, $tags: [String!]) {
     createPost(title: $title, contents: $contents, tags: $tags) {
       id
       title
-    }
-  }
-`
-
-export const LIKE_POST = gql`
-  mutation likePost($postId: ID!) {
-    likePost(postId: $postId) {
-      id
-      likesCount
-      likes {
-        id
-        username
-      }
     }
   }
 `

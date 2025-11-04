@@ -3,8 +3,6 @@ import { PropTypes } from 'prop-types'
 import { User } from './User.jsx'
 import { Link } from 'react-router-dom'
 import slug from 'slug'
-import { useMutation } from '@apollo/client'
-import { LIKE_POST } from '../api/graphql/posts.js'
 
 export function Post({
   title,
@@ -13,33 +11,8 @@ export function Post({
   id,
   imageUrl,
   fullPost = false,
-  likes = [],
-  likesCount = 0,
-  currentUserId,
 }) {
   const [showImage, setShowImage] = useState(false)
-  const [likePost] = useMutation(LIKE_POST)
-
-  const handleLike = () => {
-    likePost({
-      variables: { postId: id },
-      update(cache, { data: { likePost } }) {
-        cache.modify({
-          id: cache.identify({ id, __typename: 'Post' }),
-          fields: {
-            likesCount() {
-              return likePost.likesCount
-            },
-            likes() {
-              return likePost.likes
-            },
-          },
-        })
-      },
-    })
-  }
-
-  const hasLiked = likes.some((user) => user.id === currentUserId)
 
   return (
     <article>
@@ -72,8 +45,6 @@ export function Post({
           Submitted by <User {...author} />
         </em>
       )}
-      <p>Likes: {likesCount}</p>
-      <button onClick={handleLike}>{hasLiked ? 'Unlike' : 'Like'}</button>
     </article>
   )
 }
@@ -85,12 +56,4 @@ Post.propTypes = {
   id: PropTypes.string.isRequired,
   imageUrl: PropTypes.string,
   fullPost: PropTypes.bool,
-  likes: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      username: PropTypes.string,
-    }),
-  ),
-  likesCount: PropTypes.number,
-  currentUserId: PropTypes.string.isRequired,
 }
