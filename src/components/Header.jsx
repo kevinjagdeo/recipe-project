@@ -1,22 +1,32 @@
 import { Link } from 'react-router-dom'
-import { jwtDecode } from 'jwt-decode'
+import * as jwtDecode from 'jwt-decode'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { User } from './User.jsx'
 import { useQuery } from '@tanstack/react-query'
 import { getUserInfo } from '../api/users.js'
 
 export function Header() {
-  const [token, setToken] = useAuth()
-  const { sub } = token ? jwtDecode(token) : {}
+  const { token, setToken } = useAuth()
+
+  let sub = null
+  if (token) {
+    try {
+      const payload = jwtDecode(token)
+      sub = payload?.sub
+    } catch (e) {
+      console.warn('JWT decode failed:', e)
+    }
+  }
+
   const userInfoQuery = useQuery({
     queryKey: ['users', sub],
     queryFn: () => getUserInfo(sub),
     enabled: Boolean(sub),
   })
+
   const userInfo = userInfoQuery.data
 
   if (token && userInfo) {
-    //const { sub } = jwtDecode(token)
     return (
       <div>
         <h1>Welcome to my Recipes Website!</h1>
