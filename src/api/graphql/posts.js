@@ -1,4 +1,4 @@
-import { gql } from '@apollo/client/core/index.js'
+import { gql } from '@apollo/client'
 
 export const POST_FIELDS = gql`
   fragment PostFields on Post {
@@ -36,6 +36,15 @@ export const CREATE_POST = gql`
     createPost(title: $title, contents: $contents, tags: $tags) {
       id
       title
+    }
+  }
+`
+export const TOGGLE_LIKE = gql`
+  mutation toggleLike($postId: ID!) {
+    toggleLike(postId: $postId) {
+      id
+      likes
+      likedBy
     }
   }
 `

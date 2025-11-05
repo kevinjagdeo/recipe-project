@@ -1,71 +1,60 @@
 import { useState } from 'react'
-//import { useMutation } from '@tanstack/react-query'
 import { useNavigate, Link } from 'react-router-dom'
-//import { login } from '../api/users.js'
+import { useMutation } from '@apollo/client'
+
 import { useAuth } from '../contexts/AuthContext.jsx'
-import { useMutation as useGraphQLMutation } from '@apollo/client/react/index.js'
 import { LOGIN_USER } from '../api/graphql/users.js'
 
 export function Login() {
-  const [, setToken] = useAuth()
+  const { setToken } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const navigate = useNavigate()
 
-  const [loginUser, { loading }] = useGraphQLMutation(LOGIN_USER, {
-    variables: { username, password },
+  const [loginUser, { loading, error }] = useMutation(LOGIN_USER, {
     onCompleted: (data) => {
-      setToken(data.loginUser)
-      navigate('/')
+      if (data?.loginUser) {
+        setToken(data.loginUser)
+        navigate('/')
+      } else {
+        alert('Login failed: no token received')
+      }
     },
-    onError: () => alert('failed to login!'),
+    onError: (error) => {
+      alert('Login error: ' + error.message)
+    },
   })
 
-  /*const loginMutation = useMutation({
-    mutationFn: () => login({ username, password }),
-    onSuccess: (data) => {
-      setToken(data.token)
-      navigate('/')
-    },
-    onError: () => alert('failed to login!'),
-  })*/
   const handleSubmit = (e) => {
     e.preventDefault()
-    loginUser()
-    //loginMutation.mutate()
+    if (!username || !password) return
+    loginUser({ variables: { username, password } })
   }
+
   return (
     <form onSubmit={handleSubmit}>
       <Link to='/'>Back to main page</Link>
       <hr />
-      <br />
-      <div>
-        <label htmlFor='create-username'>Username: </label>
-        <input
-          type='text'
-          name='create-username'
-          id='create-username'
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-      </div>
-      <br />
-      <div>
-        <label htmlFor='create-password'>Password: </label>
-        <input
-          type='password'
-          name='create-password'
-          id='create-password'
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <br />
+      <label htmlFor='username'>Username:</label>
       <input
-        type='submit'
-        value={loading ? 'Logging in...' : 'Log In'}
-        disabled={!username || !password || loading}
+        id='username'
+        type='text'
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
       />
+      <br />
+      <label htmlFor='password'>Password:</label>
+      <input
+        id='password'
+        type='password'
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <br />
+      <button type='submit' disabled={loading || !username || !password}>
+        {loading ? 'Logging in...' : 'Log In'}
+      </button>
+      {error && <p style={{ color: 'red' }}>{error.message}</p>}
     </form>
   )
 }

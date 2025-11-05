@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { PropTypes } from 'prop-types'
 import { User } from './User.jsx'
 import { Link } from 'react-router-dom'
+import { useMutation } from '@apollo/client'
 import slug from 'slug'
+import { TOGGLE_LIKE } from '../api/graphql/posts' // Your GraphQL mutation
 
 export function Post({
   title,
@@ -11,8 +13,27 @@ export function Post({
   id,
   imageUrl,
   fullPost = false,
+  currentUsername,
+  likes,
+  likedBy = [], // array of usernames who liked
 }) {
   const [showImage, setShowImage] = useState(false)
+
+  const isLiked = likedBy.includes(currentUsername)
+
+  const [toggleLike] = useMutation(TOGGLE_LIKE, {
+    variables: { postId: id },
+    optimisticResponse: {
+      toggleLike: {
+        id,
+        likes: isLiked ? likes - 1 : likes + 1,
+        likedBy: isLiked
+          ? likedBy.filter((user) => user !== currentUsername)
+          : [...likedBy, currentUsername],
+        __typename: 'Post',
+      },
+    },
+  })
 
   return (
     <article>
@@ -25,7 +46,6 @@ export function Post({
       )}
       {imageUrl && (
         <div>
-          {' '}
           <br />
           <button
             onClick={() => setShowImage((prev) => !prev)}
@@ -45,6 +65,12 @@ export function Post({
           Submitted by <User {...author} />
         </em>
       )}
+      {/* Like button */}
+      <div>
+        <button onClick={() => toggleLike()} disabled={false}>
+          {isLiked ? 'Unlike' : 'Like'} ({likes})
+        </button>
+      </div>
     </article>
   )
 }
@@ -56,4 +82,7 @@ Post.propTypes = {
   id: PropTypes.string.isRequired,
   imageUrl: PropTypes.string,
   fullPost: PropTypes.bool,
+  currentUsername: PropTypes.string,
+  likes: PropTypes.number, // total likes (updated field)
+  likedBy: PropTypes.arrayOf(PropTypes.string), // array of usernames
 }

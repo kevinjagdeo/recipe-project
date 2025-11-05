@@ -1,14 +1,14 @@
 import { GraphQLError } from 'graphql'
 import { createUser, loginUser } from '../services/users.js'
-import { createPost, addLikeToPost } from '../services/posts.js' // make sure addLikeToPost exists in posts service
+import { createPost, toggleLikePost } from '../services/posts.js' // use toggleLikePost service
 
 export const mutationSchema = `#graphql
-type Mutation {
-  signupUser(username: String!, password: String!): User
-  loginUser(username: String!, password: String!): String
-  createPost(title: String!, contents: String, tags:[String]): Post
-  likePost(postId: ID!, username: String!): Post
-}
+  type Mutation {
+    signupUser(username: String!, password: String!): User
+    loginUser(username: String!, password: String!): String
+    createPost(title: String!, contents: String, tags:[String]): Post
+    toggleLike(postId: ID!): Post
+  }
 `
 
 export const mutationResolver = {
@@ -24,28 +24,22 @@ export const mutationResolver = {
         throw new GraphQLError(
           'You need to be authenticated to perform this action.',
           {
-            extensions: {
-              code: 'UNAUTHORIZED',
-            },
+            extensions: { code: 'UNAUTHORIZED' },
           },
         )
       }
       return await createPost(auth.sub, { title, contents, tags })
     },
-    likePost: async (parent, { postId, username }, { auth }) => {
-      // Optional: Check if user is authenticated and username matches auth
-      if (!auth || auth.username !== username) {
+    toggleLike: async (parent, { postId }, { auth }) => {
+      if (!auth) {
         throw new GraphQLError(
-          'You need to be authenticated as this user to like a post.',
+          'You need to be authenticated to perform this action.',
           {
-            extensions: {
-              code: 'UNAUTHORIZED',
-            },
+            extensions: { code: 'UNAUTHORIZED' },
           },
         )
       }
-      // Call service to add like and return updated post
-      return await addLikeToPost(postId, username)
+      return await toggleLikePost(postId, auth.sub)
     },
   },
 }

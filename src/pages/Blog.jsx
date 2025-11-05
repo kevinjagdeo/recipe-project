@@ -8,7 +8,18 @@ import { Helmet } from 'react-helmet-async'
 import { useQuery as useGraphQLQuery } from '@apollo/client/react'
 import { GET_POSTS, GET_POSTS_BY_AUTHOR } from '../api/graphql/posts.js'
 import { useAuth } from '../contexts/AuthContext.jsx'
-import * as jwtDecode from 'jwt-decode'
+
+// Fallback method to decode JWT payload without external dependencies
+function decodeJwtPayload(token) {
+  try {
+    const payloadBase64 = token.split('.')[1]
+    const payloadJson = atob(payloadBase64)
+    return JSON.parse(payloadJson)
+  } catch (e) {
+    console.warn('Failed to decode JWT payload:', e)
+    return null
+  }
+}
 
 export function Blog() {
   const [author, setAuthor] = useState('')
@@ -23,12 +34,8 @@ export function Blog() {
   const { token } = useAuth()
   let currentUsername = ''
   if (token) {
-    try {
-      const decoded = jwtDecode(token)
-      currentUsername = decoded.username
-    } catch (e) {
-      console.warn('JWT decode failed:', e)
-    }
+    const decoded = decodeJwtPayload(token)
+    currentUsername = decoded?.username ?? ''
   }
 
   return (

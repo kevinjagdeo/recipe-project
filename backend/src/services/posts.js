@@ -67,3 +67,33 @@ export async function addLikeToPost(postId, username) {
 
   return updatedPost
 }
+
+export async function toggleLikePost(postId, username) {
+  const user = await User.findOne({ username })
+  if (!user) {
+    throw new Error('User not found')
+  }
+
+  const post = await Post.findById(postId)
+  if (!post) {
+    throw new Error('Post not found')
+  }
+
+  // Check if user has already liked the post
+  const likedIndex = post.likedBy.findIndex((id) => id.equals(user._id))
+
+  if (likedIndex === -1) {
+    // Add user to likedBy
+    post.likedBy.push(user._id)
+  } else {
+    // Remove user from likedBy
+    post.likedBy.splice(likedIndex, 1)
+  }
+
+  // Update likesCount
+  post.likesCount = post.likedBy.length
+
+  await post.save()
+
+  return post
+}

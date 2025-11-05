@@ -2,8 +2,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthContextProvider } from './contexts/AuthContext.jsx'
 import { HelmetProvider } from 'react-helmet-async'
 import PropTypes from 'prop-types'
-import { ApolloProvider } from '@apollo/client/react'
-import { ApolloClient, InMemoryCache } from '@apollo/client/core'
+import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client'
 
 const queryClient = new QueryClient()
 const apolloClient = new ApolloClient({
