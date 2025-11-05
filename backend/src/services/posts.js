@@ -29,8 +29,19 @@ export async function listPostsByTag(tags, options) {
   return await listPosts({ tags }, options)
 }
 
-export async function getPostById(postId) {
+/*export async function getPostById(postId) {
   return await Post.findById(postId)
+}*/
+
+export async function getPostById(postId) {
+  const post = await Post.findById(postId)
+  if (!post) return null
+
+  // Ensure these fields exist
+  post.likes = post.likes ?? 0
+  post.likedBy = post.likedBy ?? []
+
+  return post
 }
 
 export async function updatePost(
@@ -68,8 +79,8 @@ export async function addLikeToPost(postId, username) {
   return updatedPost
 }
 
-export async function toggleLikePost(postId, username) {
-  const user = await User.findOne({ username })
+export async function toggleLikePost(postId, userId) {
+  const user = await User.findById(userId) // Use findById with userId
   if (!user) {
     throw new Error('User not found')
   }
@@ -90,7 +101,7 @@ export async function toggleLikePost(postId, username) {
     post.likedBy.splice(likedIndex, 1)
   }
 
-  // Update likesCount
+  // Update likesCount if you maintain this field
   post.likesCount = post.likedBy.length
 
   await post.save()

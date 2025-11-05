@@ -10,6 +10,8 @@ import {
   HydrationBoundary,
 } from '@tanstack/react-query'
 import { getUserInfo } from './api/users.js'
+import { useAuth } from './contexts/AuthContext.jsx'
+
 export const routes = [
   {
     path: '/',
@@ -36,9 +38,11 @@ export const routes = [
     },
     Component() {
       const dehydratedState = useLoaderData()
+      const { user } = useAuth()
+
       return (
         <HydrationBoundary state={dehydratedState}>
-          <Blog />
+          <Blog currentUsername={user?.username || ''} />
         </HydrationBoundary>
       )
     },
@@ -69,7 +73,6 @@ export const routes = [
       }
       return { dehydratedState: dehydrate(queryClient), postId }
     },
-
     Component() {
       const { dehydratedState, postId } = useLoaderData()
       return (

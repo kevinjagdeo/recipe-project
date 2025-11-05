@@ -1,4 +1,5 @@
 import { getUserInfoById } from '../services/users.js'
+import { User } from '../db/models/user.js'
 
 export const postSchema = `#graphql
   type Post {
@@ -20,22 +21,19 @@ export const postResolver = {
       return await getUserInfoById(post.author)
     },
     likes: (post) => {
-      // Return the count of likes; post.likesCount or length of likedBy
-      // Assuming post.likesCount field exists
       if ('likesCount' in post) {
         return post.likesCount
       }
-      // Or use length of likedBy array if available
       if ('likedBy' in post) {
         return post.likedBy.length
       }
       return 0
     },
-    likedBy: (post) => {
-      // Return array of usernames who liked the post, if available
+    likedBy: async (post) => {
       if ('likedBy' in post) {
-        // You might want to resolve IDs to usernames here with DB call if needed
-        return post.likedBy
+        // Fetch usernames for user IDs in likedBy array
+        const users = await User.find({ _id: { $in: post.likedBy } })
+        return users.map((user) => user.username)
       }
       return []
     },

@@ -11,6 +11,8 @@ export const POST_FIELDS = gql`
     author {
       username
     }
+    likes
+    likedBy
   }
 `
 
@@ -47,4 +49,12 @@ export const TOGGLE_LIKE = gql`
       likedBy
     }
   }
+`
+export const GET_POST_BY_ID = gql`
+  query getPostById($id: ID!) {
+    postById(id: $id) {
+      ...PostFields
+    }
+  }
+  ${POST_FIELDS}
 `

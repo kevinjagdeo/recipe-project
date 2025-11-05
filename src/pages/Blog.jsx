@@ -5,8 +5,12 @@ import { PostSorting } from '../components/PostSorting.jsx'
 import { Header } from '../components/Header.jsx'
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { useQuery as useGraphQLQuery } from '@apollo/client/react'
-import { GET_POSTS, GET_POSTS_BY_AUTHOR } from '../api/graphql/posts.js'
+import { useQuery, useMutation } from '@apollo/client'
+import {
+  GET_POSTS,
+  GET_POSTS_BY_AUTHOR,
+  TOGGLE_LIKE,
+} from '../api/graphql/posts.js'
 import { useAuth } from '../contexts/AuthContext.jsx'
 
 // Fallback method to decode JWT payload without external dependencies
@@ -26,8 +30,9 @@ export function Blog() {
   const [sortBy, setSortBy] = useState('createdAt')
   const [sortOrder, setSortOrder] = useState('descending')
 
-  const postsQuery = useGraphQLQuery(author ? GET_POSTS_BY_AUTHOR : GET_POSTS, {
+  const postsQuery = useQuery(author ? GET_POSTS_BY_AUTHOR : GET_POSTS, {
     variables: { options: { sortBy, sortOrder } },
+    fetchPolicy: 'network-only',
   })
   const posts = postsQuery.data?.postsByAuthor ?? postsQuery.data?.posts ?? []
 
@@ -36,6 +41,31 @@ export function Blog() {
   if (token) {
     const decoded = decodeJwtPayload(token)
     currentUsername = decoded?.username ?? ''
+  }
+
+  const [toggleLike, { loading: toggleLikeLoading }] = useMutation(
+    TOGGLE_LIKE,
+    {
+      onError(error) {
+        console.error('Toggle like mutation error:', error)
+      },
+      refetchQueries: [
+        { query: GET_POSTS, variables: { options: { sortBy, sortOrder } } },
+        ...(author
+          ? [
+              {
+                query: GET_POSTS_BY_AUTHOR,
+                variables: { author, options: { sortBy, sortOrder } },
+              },
+            ]
+          : []),
+      ],
+      awaitRefetchQueries: true,
+    },
+  )
+
+  function handleToggleLike(postId) {
+    toggleLike({ variables: { postId } })
   }
 
   return (
@@ -68,7 +98,15 @@ export function Blog() {
         onOrderChange={(orderValue) => setSortOrder(orderValue)}
       />
       <hr />
-      <PostList posts={posts} currentUsername={currentUsername} />
+      <PostList
+        posts={posts}
+        currentUsername={currentUsername}
+        author={author}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onToggleLike={handleToggleLike}
+        loading={toggleLikeLoading}
+      />
     </div>
   )
 }
