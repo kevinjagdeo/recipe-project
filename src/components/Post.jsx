@@ -17,9 +17,11 @@ export function Post({
   onToggleLike,
   loading,
 }) {
+  // Show image by default, toggle with button
   const [showImage, setShowImage] = useState(false)
 
   const isLiked = likedBy.some((user) => user.username === currentUsername)
+
   return (
     <article>
       {fullPost ? (
@@ -29,21 +31,22 @@ export function Post({
           <h3>{title}</h3>
         </Link>
       )}
-      {imageUrl && (
-        <div>
-          <br />
-          <button
-            onClick={() => setShowImage((prev) => !prev)}
-            style={{ marginBottom: '8px' }}
-          >
-            {showImage ? 'Hide Image' : 'Show Image'}
-          </button>
-          {showImage && (
-            <img src={imageUrl} alt={title} className='recipe-image' />
-          )}
-        </div>
-      )}
+
+      <div>
+        <br />
+        <button
+          onClick={() => setShowImage((prev) => !prev)}
+          style={{ marginBottom: '8px' }}
+        >
+          {showImage ? 'Hide Image' : 'Show Image'}
+        </button>
+        {showImage && imageUrl && (
+          <img src={imageUrl} alt={title} className='recipe-image' />
+        )}
+      </div>
+
       {fullPost && <div>{content}</div>}
+
       {author && (
         <em>
           {fullPost && <br />}

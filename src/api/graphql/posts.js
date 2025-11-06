@@ -6,6 +6,7 @@ export const POST_FIELDS = gql`
     title
     content
     tags
+    imageUrl
     updatedAt
     createdAt
     author {
@@ -33,14 +34,26 @@ export const GET_POSTS_BY_AUTHOR = gql`
     }
   }
 `
+
 export const CREATE_POST = gql`
-  mutation createPost($title: String!, $contents: String, $tags: [String!]) {
-    createPost(title: $title, contents: $contents, tags: $tags) {
+  mutation createPost(
+    $title: String!
+    $content: String
+    $imageUrl: String
+    $tags: [String!]
+  ) {
+    createPost(
+      title: $title
+      content: $content
+      imageUrl: $imageUrl
+      tags: $tags
+    ) {
       id
       title
     }
   }
 `
+
 export const TOGGLE_LIKE = gql`
   mutation toggleLike($postId: ID!) {
     toggleLike(postId: $postId) {
@@ -50,6 +63,7 @@ export const TOGGLE_LIKE = gql`
     }
   }
 `
+
 export const GET_POST_BY_ID = gql`
   query getPostById($id: ID!) {
     postById(id: $id) {
