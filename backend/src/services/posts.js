@@ -11,7 +11,10 @@ async function listPosts(
   query = {},
   { sortBy = 'createdAt', sortOrder = 'descending' } = {},
 ) {
-  return await Post.find(query).sort({ [sortBy]: sortOrder })
+  // Map frontend sort 'likes' to backend field 'likesCount'
+  let sortField = sortBy === 'likes' ? 'likesCount' : sortBy
+  const sortObj = { [sortField]: sortOrder === 'ascending' ? 1 : -1 }
+  return await Post.find(query).sort(sortObj)
 }
 
 export async function listAllPosts(options) {
@@ -28,10 +31,6 @@ export async function listPostsByAuthor(authorUsername, options) {
 export async function listPostsByTag(tags, options) {
   return await listPosts({ tags }, options)
 }
-
-/*export async function getPostById(postId) {
-  return await Post.findById(postId)
-}*/
 
 export async function getPostById(postId) {
   const post = await Post.findById(postId)
