@@ -28,8 +28,15 @@ export const SocketIOContextProvider = ({ children }) => {
       })
       socket.on('disconnect', () => setStatus('disconnected'))
       setSocket(socket)
+
+      return () => {
+        socket.close()
+      }
+    } else {
+      setSocket(null)
+      setStatus('waiting')
     }
-  }, [token, setSocket, setStatus, setError])
+  }, [token])
   return (
     <SocketIOContext.Provider value={{ socket, status, error }}>
       {children}

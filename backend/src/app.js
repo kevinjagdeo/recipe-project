@@ -9,16 +9,16 @@ import { handleSocket } from './socket.js'
 const app = express()
 app.use(bodyParser.json())
 app.use(cors())
-postsRoutes(app)
-userRoutes(app)
-app.get('/', (req, res) => {
-  res.send('Hello from Express Nodemon!')
-})
 const server = createServer(app)
 const io = new Server(server, {
   cors: {
     origin: '*',
   },
+})
+postsRoutes(app, io)
+userRoutes(app)
+app.get('/', (req, res) => {
+  res.send('Hello from Express Nodemon!')
 })
 handleSocket(io)
 /* io.on('connection', (socket) => {

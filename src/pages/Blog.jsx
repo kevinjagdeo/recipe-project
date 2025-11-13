@@ -3,14 +3,20 @@ import { CreatePost } from '../components/CreatePost.jsx'
 import { PostFilter } from '../components/PostFilter.jsx'
 import { PostSorting } from '../components/PostSorting.jsx'
 import { Header } from '../components/Header.jsx'
-import { useQuery } from '@tanstack/react-query'
+import { NotificationPopup } from '../components/NotificationPopup.jsx'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { getPosts } from '../api/posts.js'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSocket } from '../contexts/SocketIOContext.jsx'
 
 export function Blog() {
   const [author, setAuthor] = useState('')
   const [sortBy, setSortBy] = useState('createdAt')
   const [sortOrder, setSortOrder] = useState('descending')
+  const [notification, setNotification] = useState(null)
+  const { socket } = useSocket()
+  const queryClient = useQueryClient()
+
   const postsQuery = useQuery({
     queryKey: ['posts', { author, sortBy, sortOrder }],
     queryFn: () => getPosts({ author, sortBy, sortOrder }),
@@ -18,8 +24,28 @@ export function Blog() {
 
   const posts = postsQuery.data ?? []
 
+  useEffect(() => {
+    if (socket) {
+      const handleNewRecipe = (data) => {
+        setNotification(data)
+        // Refresh the posts list to show the new post
+        queryClient.invalidateQueries(['posts'])
+      }
+
+      socket.on('new.recipe.posted', handleNewRecipe)
+
+      return () => {
+        socket.off('new.recipe.posted', handleNewRecipe)
+      }
+    }
+  }, [socket, queryClient])
+
   return (
     <div style={{ padding: 8 }}>
+      <NotificationPopup
+        notification={notification}
+        onClose={() => setNotification(null)}
+      />
       <Header />
       <br />
       <hr />
